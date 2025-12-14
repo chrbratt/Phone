@@ -103,6 +103,7 @@ class SettingsActivity : SimpleActivity() {
         setupDefaultTab()
         setupDialPadOpen()
         setupGroupSubsequentCalls()
+        setupShowDateSeparators() // New
         setupStartNameWithSurname()
         setupFormatPhoneNumbers()
         setupDialpadVibrations()
@@ -274,6 +275,16 @@ class SettingsActivity : SimpleActivity() {
             settingsGroupSubsequentCallsHolder.setOnClickListener {
                 settingsGroupSubsequentCalls.toggle()
                 config.groupSubsequentCalls = settingsGroupSubsequentCalls.isChecked
+            }
+        }
+    }
+
+    private fun setupShowDateSeparators() {
+        binding.apply {
+            settingsShowDateSeparators.isChecked = config.showDateSeparators
+            settingsShowDateSeparatorsHolder.setOnClickListener {
+                settingsShowDateSeparators.toggle()
+                config.showDateSeparators = settingsShowDateSeparators.isChecked
             }
         }
     }

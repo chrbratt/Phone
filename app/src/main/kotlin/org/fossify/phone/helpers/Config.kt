@@ -103,6 +103,10 @@ class Config(context: Context) : BaseConfig(context) {
     var groupSubsequentCalls: Boolean
         get() = prefs.getBoolean(GROUP_SUBSEQUENT_CALLS, true)
         set(groupSubsequentCalls) = prefs.edit().putBoolean(GROUP_SUBSEQUENT_CALLS, groupSubsequentCalls).apply()
+        
+    var showDateSeparators: Boolean
+        get() = prefs.getBoolean(SHOW_DATE_SEPARATORS, true)
+        set(showDateSeparators) = prefs.edit().putBoolean(SHOW_DATE_SEPARATORS, showDateSeparators).apply()
 
     var openDialPadAtLaunch: Boolean
         get() = prefs.getBoolean(OPEN_DIAL_PAD_AT_LAUNCH, false)

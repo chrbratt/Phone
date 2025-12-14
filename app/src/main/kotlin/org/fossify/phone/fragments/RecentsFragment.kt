@@ -285,6 +285,12 @@ class RecentsFragment(
 
     private fun groupCallsByDate(recentCalls: List<RecentCall>): MutableList<CallLogItem> {
         val callLog = mutableListOf<CallLogItem>()
+
+        if (!context.config.showDateSeparators) {
+            callLog.addAll(recentCalls)
+            return callLog
+        }
+
         var lastDayCode = ""
         for (call in recentCalls) {
             val currentDayCode = call.dayCode
