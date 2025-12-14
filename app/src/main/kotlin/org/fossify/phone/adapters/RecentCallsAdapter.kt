@@ -518,7 +518,7 @@ class RecentCallsAdapter(
                         call.startTS.formatDateOrTime(
                             context = context, 
                             hideTimeOnOtherDays = false, 
-                            showCurrentYear = false, 
+                            showCurrentYear = true,
                             hideTodaysDate = false
                         )
                     } else {
