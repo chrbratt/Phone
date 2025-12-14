@@ -668,7 +668,7 @@ class RecentCallsDiffCallback : DiffUtil.ItemCallback<CallLogItem>() {
                         oldItem.specificNumber == newItem.specificNumber &&
                         oldItem.specificType == newItem.specificType &&
                         oldItem.isUnknownNumber == newItem.isUnknownNumber &&
-                        oldItem.groupedCalls?.size == newItem.groupedCalls?.size
+                        (oldItem.groupedCalls?.size ?: 0) == (newItem.groupedCalls?.size ?: 0)
             }
 
             else -> false

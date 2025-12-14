@@ -15,6 +15,7 @@ import org.fossify.phone.activities.SimpleActivity
 import org.fossify.phone.extensions.getAvailableSIMCardLabels
 import org.fossify.phone.models.RecentCall
 import org.fossify.phone.models.SIMAccount
+import java.util.LinkedHashMap
 
 class RecentsHelper(private val context: Context) {
     companion object {
@@ -82,47 +83,46 @@ class RecentsHelper(private val context: Context) {
     ) {
         getRecentCalls(previousRecents, queryLimit) { recentCalls ->
             callback(
-                groupSubsequentCalls(calls = recentCalls)
+                consolidateCalls(calls = recentCalls)
             )
         }
     }
 
-    private fun shouldGroupCalls(callA: RecentCall, callB: RecentCall): Boolean {
-        val differentSim = callA.simID != callB.simID
-        val differentDay = callA.dayCode != callB.dayCode
-        val namesAreBothRealAndDifferent =
-            callA.name != callB.name &&
-                    callA.name != callA.phoneNumber &&
-                    callB.name != callB.phoneNumber
+    private fun consolidateCalls(calls: List<RecentCall>): List<RecentCall> {
+        val groupedCalls = LinkedHashMap<String, RecentCall>()
 
-        if (differentSim || differentDay || namesAreBothRealAndDifferent) return false
+        for (call in calls) {
+            val groupKey = "${call.phoneNumber.normalizePhoneNumber()}-${call.simID}"
 
-        @Suppress("DEPRECATION")
-        return PhoneNumberUtils.compare(callA.phoneNumber, callB.phoneNumber)
-    }
+            if (groupedCalls.containsKey(groupKey)) {
+                val currentHead = groupedCalls[groupKey]!!
+                var targetList: MutableList<RecentCall>
 
-    private fun groupSubsequentCalls(calls: List<RecentCall>): List<RecentCall> {
-        val result = mutableListOf<RecentCall>()
-        if (calls.isEmpty()) return result
-
-        var currentCall = calls[0]
-        for (i in 1 until calls.size) {
-            val nextCall = calls[i]
-            if (shouldGroupCalls(currentCall, nextCall)) {
-                if (currentCall.groupedCalls.isNullOrEmpty()) {
-                    currentCall = currentCall.copy(groupedCalls = mutableListOf(currentCall))
+                if (currentHead.groupedCalls.isNullOrEmpty()) {
+                    // Promote single call to a group:
+                    // 1. Create the new mutable list with the original head
+                    targetList = mutableListOf(currentHead)
+                    
+                    // 2. Create a new head (copy) with the list, since groupedCalls is a 'val'
+                    val newHead = currentHead.copy(groupedCalls = targetList)
+                    
+                    // 3. Update the map with the new head
+                    groupedCalls[groupKey] = newHead
+                } else {
+                    // The list already exists and is mutable
+                    targetList = currentHead.groupedCalls!!
                 }
 
-                currentCall.groupedCalls?.add(nextCall)
+                // Add the current (older) call to the group
+                targetList.add(call)
             } else {
-                result += currentCall
-                currentCall = nextCall
+                // This is the newest call, make it the head
+                groupedCalls[groupKey] = call
             }
         }
-
-        result.add(currentCall)
-        return result
+        return groupedCalls.values.toList()
     }
+
 
     @SuppressLint("NewApi")
     private fun getRecents(
